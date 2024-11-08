@@ -170,10 +170,7 @@ enemy:
 	jmp terminate
 	
 Track:
-	mov word [es:di],0x7720
-	add di, 2
-	mov word [es:di],0x7720
-	add di, 2
+	call printTrack
 	add dx, 4
 	inc si
 	call delay
@@ -203,6 +200,13 @@ printEnemy:
 	mov word [es:di],0x6745
 	add di, 2
 	mov word [es:di],0x674E
+	add di, 2
+	ret
+
+printTrack:
+	mov word [es:di],0x7720
+	add di, 2
+	mov word [es:di],0x7720
 	add di, 2
 	ret
 	
