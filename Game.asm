@@ -1,17 +1,12 @@
 [org 0x100]
 jmp start
 
-clrsrc:
-		
-	mov ax, 0xb800
-	mov es, ax
-	mov ax, 0x20
-	xor di, di
-	mov cx, 2000
-	cld
-	rep stosw
-	
-	ret
+playerAttribute: dw 0x70F0,0x70AF
+enemyAttribute: dw 0x6745, 0x674E 
+wallAttribute: dw 0x10AE
+trackAttribute: dw 0x7720
+perkAttribute: dw 0x7507
+
 
 maze1: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
       db 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
@@ -20,9 +15,9 @@ maze1: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
       db 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1
       db 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1
       db 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
-      db 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1
+      db 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 4, 0, 0, 1, 0, 1
       db 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1
-      db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1
+      db 1, 0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 1, 0, 0, 0, 1
       db 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
       db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1, 1, 1
       db 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1
@@ -37,11 +32,11 @@ maze2: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
       db 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1
       db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
       db 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
-      db 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 3, 0, 0, 1, 0, 1
+      db 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1
       db 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1
-      db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1
+      db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0, 1
       db 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1
-      db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+      db 1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1
       db 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
 	  db 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1
       db 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1
@@ -52,19 +47,31 @@ maze3: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
        db 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1
        db 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
        db 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1
-       db 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1
+       db 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 4, 0, 1, 0, 0, 1
        db 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
        db 1, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 1, 0, 1, 0, 1
        db 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
        db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
        db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
-       db 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+       db 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 1
        db 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1
        db 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1
        db 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1
        db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
 
 randNum: dw 0
+
+clrsrc:
+		
+	mov ax, 0xb800
+	mov es, ax
+	mov ax, 0x20
+	xor di, di
+	mov cx, 2000
+	cld
+	rep stosw
+	
+	ret
 
 GenRandNum:
     push bp
@@ -129,6 +136,8 @@ MazeGenerationLoop:
 	
 drawing:	
 
+	cmp byte[si], 4
+	jz perk
 	
 	cmp byte[si], 3
 	jz enemy
@@ -139,10 +148,24 @@ drawing:
 	cmp byte[si], 0
 	jz Track
 	
-	mov word [es:di],0x10AE
+	
+	; wall printing
+	mov ax, [wallAttribute]
+	mov word [es:di],ax
 	add di, 2
-	mov word [es:di],0x10AE
+	mov word [es:di],ax
 	add di, 2
+	add dx, 4
+	xor ax, ax				; setting bx back to 0
+
+	inc si
+	call delay
+	
+	loop MazeGenerationLoop
+	jmp terminate
+
+perk:
+	call printPerk
 	add dx, 4
 	inc si
 	call delay
@@ -150,6 +173,7 @@ drawing:
 	loop MazeGenerationLoop
 	jmp terminate
 	
+
 player:
 	call printPlayer
 	add dx, 4
@@ -188,26 +212,48 @@ terminate:
 	pop bp
 	ret 2
 
+printPerk:
+	mov ax, [perkAttribute]
+	mov word [es:di],ax
+	add di, 2
+	mov word [es:di],ax
+	add di, 2
+	xor ax, ax				; setting ax back to 0
+
+	ret
+
 printPlayer:
 	
-	mov word [es:di],0x70F0
+	mov ax, [playerAttribute]
+	mov word [es:di],ax
 	add di, 2
-	mov word [es:di],0x70AF
+	mov ax, [playerAttribute + 2]
+	mov word [es:di],ax
 	add di, 2
+	xor ax, ax				; setting ax back to 0
+
 	ret
 
 printEnemy:
-	mov word [es:di],0x6745
+	mov ax, [enemyAttribute]
+	mov word [es:di],ax
 	add di, 2
-	mov word [es:di],0x674E
+	mov ax, [enemyAttribute + 2]
+	mov word [es:di], ax
 	add di, 2
+	xor ax, ax				; setting ax back to 0
+
 	ret
 
 printTrack:
-	mov word [es:di],0x7720
+
+	mov ax, [trackAttribute]
+	mov word [es:di],ax
 	add di, 2
-	mov word [es:di],0x7720
+	mov word [es:di],ax
 	add di, 2
+	xor ax, ax				; setting ax back to 0
+
 	ret
 	
 start:
@@ -244,5 +290,6 @@ LoadMaze3:
     jmp EndProgram       
 
 EndProgram:
+
     mov ax, 0x4c00       
     int 0x21
