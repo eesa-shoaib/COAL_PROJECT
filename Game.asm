@@ -6,20 +6,25 @@ enemyAttribute: dw 0x6745, 0x674E
 wallAttribute: dw 0x10AE
 trackAttribute: dw 0x7720
 perkAttribute: dw 0x7507
+HearthAttribute:  dw 0x0403
+finishAttribute: dw 0xFCDC
 
-playerIndexArray: dw 0
+score: dw 0
+healthCount: dw 3
+
+finishIndex: dw 0
 playerIndexDisplay: dw 0
 
 maze1: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
       db 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
       db 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
-      db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1
+      db 1, 0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 1, 0, 1
       db 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1
       db 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1
       db 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
       db 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 4, 0, 0, 1, 0, 1
       db 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1
-      db 1, 0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 1, 0, 0, 0, 1
+      db 1, 0, 0, 0, 0, 3, 4, 1, 0, 0, 0, 1, 0, 0, 0, 1
       db 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
       db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1, 1, 1
       db 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1
@@ -31,7 +36,7 @@ maze2: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
       db 1, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
       db 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
       db 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1
-      db 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1
+      db 1, 0, 1, 1, 1, 1, 3, 1, 0, 1, 1, 1, 0, 1, 1, 1
       db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
       db 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
       db 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1
@@ -41,7 +46,7 @@ maze2: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
       db 1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1
       db 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
 	  db 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1
-      db 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
+      db 1, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 1
       db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
 maze3: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -58,11 +63,11 @@ maze3: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
        db 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 1
        db 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1
        db 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1
-       db 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1
+       db 1, 0, 0, 0, 3, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 1
        db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
 maze4: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-       db 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+       db 1, 2, 0, 0, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 1
        db 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1
        db 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
        db 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1
@@ -70,7 +75,7 @@ maze4: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
        db 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
        db 1, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 1, 0, 1, 0, 1
        db 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
-       db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+       db 1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0, 0, 0, 1
        db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
        db 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 1
        db 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1
@@ -79,8 +84,9 @@ maze4: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
        db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
 
+
 randNum: dw 0
-tickcount:    dw   60                  ; start from 60 seconds
+tickcount:    dw   20                  ; start from 60 seconds
 tickticks:    dw   0                   ; counter for 18 ticks (1 second)
 
 startTimer:
@@ -90,13 +96,10 @@ startTimer:
 	mov  word [es:8*4], timer   
 	mov  [es:8*4+2], cs         
 	sti                        
-
-	mov  dx, start              
-	add  dx, 15                 
-	mov  cl, 4 
-	shr  dx, cl                  
-
-	ret
+	
+	
+	
+ret
 
 ;-----{Printing Number}-----
 
@@ -113,7 +116,8 @@ printnum:     push bp
               mov  es, ax             
               mov  ax, [bp+4]         
               mov  bx, 10             
-              mov  cx, 0               
+              mov  cx, 0 
+		
  
 nextdigit:    mov  dx, 0              
               div  bx                 
@@ -124,13 +128,27 @@ nextdigit:    mov  dx, 0
               jnz  nextdigit          
  
               mov  di, 140           
- 
+				
+				cmp cx, 1
+				jz singledigit
+				
 nextpos:      pop  dx                
               mov  dh, 0x07           
               mov  [es:di], dx         
               add  di, 2              
               loop nextpos            
- 
+				jmp term
+				
+singledigit:				
+			  pop  dx                
+              mov  dh, 0x84           
+              mov  [es:di], dx         
+              add  di, 2              
+              loop singledigit
+			  
+			  mov  word[es:di], 0x0720
+			  
+term: 
               pop  di 
               pop  dx 
               pop  cx 
@@ -144,48 +162,43 @@ gameOver:
 			  call clrsrc
 			  ret
 
-timer:        push ax 
-              push bx
+timer:      push ax 
+            push bx
  
-              inc  word [cs:tickticks]    
+            inc  word [cs:tickticks]    
  
 
-              mov  ax, [cs:tickticks]
-              cmp  ax, 18               ; Check if tick counter reached 18 (approximately 1 second)
-              jb   skip_display_update    
+            mov  ax, [cs:tickticks]
+            cmp  ax, 18               ; Check if tick counter reached 18 (approximately 1 second)
+            jb   skip_display_update    
 
-              mov  word [cs:tickticks], 0 
-              mov  ax, [cs:tickcount]
-              cmp  ax, 0
-              jle  skip_display_update    
+            mov  word [cs:tickticks], 0 
+		
+            dec  word [cs:tickcount]    
+
+            mov  ax, [cs:tickcount]
+            cmp  ax, 0
+            jg   display_update         
+              
+            call gameOver                  
+
+	skip_display_update:
+              
+            jmp end_interrupt
+
+	display_update:
+              
+            push word [cs:tickcount]
+            call printnum
+
+	end_interrupt:
+            mov  al, 0x20 
+            out  0x20, al              
+ 
+            pop  bx 
+            pop  ax 
+            iret 
 			  
-              dec  word [cs:tickcount]    
-
-              mov  ax, [cs:tickcount]
-              cmp  ax, 0
-              jg   display_update         
-              
-              call gameOver                  
-
-skip_display_update:
-              
-              jmp end_interrupt
-
-display_update:
-              
-              push word [cs:tickcount]
-              call printnum               
-
-end_interrupt:
-              mov  al, 0x20 
-              out  0x20, al              
- 
-              pop  bx 
-              pop  ax 
-              iret 
-
-
-
 clrsrc:
 		
 	mov ax, 0xb800
@@ -331,9 +344,11 @@ LoadMaze:
 		
 		sub di, 8
 		sub di, 160
-		mov word[es:di], 0xFCDC
+		mov [finishIndex], di
+		mov ax, [finishAttribute]
+		mov word[es:di], ax
 		add di, 2
-		mov word[es:di], 0xFCDC
+		mov word[es:di], ax
 		
 		popa	
 		pop bp
@@ -365,7 +380,6 @@ printPerk:
 printPlayer:
 	
 	mov ax, [playerAttribute]
-	mov [playerIndexArray], si	; storing players position
 	mov [playerIndexDisplay], di
 	mov word [es:di],ax
 	add di, 2
@@ -404,8 +418,17 @@ printTrack:
 playerMovement:
 	
 	mov di, [playerIndexDisplay]
-	mov bx, playerAttribute
 	mainLoop:
+		
+		; if health is zero end the game
+		xor bx, bx
+		cmp word[cs:healthCount], bx
+		jz exitProgram
+		
+		; if player has moved to finish end the game
+		cmp di, [finishIndex]
+		jz exitProgram
+		
     ; Check if a key is pressed
 		mov ah, 00h            
 		int 16h  
@@ -435,6 +458,8 @@ playerMovement:
 		cmp ax, [wallAttribute]
 		jz l1
 		
+		call ScoreHealthUpdate
+		
 		push di
 		call printTrack
 		pop di
@@ -456,7 +481,9 @@ playerMovement:
 		add si, 160 
 		mov ax, [es:si]
 		cmp ax, [wallAttribute]
-		jz l1
+		jz l2
+		
+		call ScoreHealthUpdate
 		
 		push di
 		call printTrack
@@ -470,8 +497,8 @@ playerMovement:
 		mov dx, [playerAttribute + 2]
 		mov word[es: di + 2], dx
 		
-			l2:
-				jmp mainLoop
+		l2:
+			jmp mainLoop
 
 	moveLeft:
 	
@@ -480,7 +507,9 @@ playerMovement:
 		
 		mov ax, [es:si]
 		cmp ax, [wallAttribute]
-		jz l1
+		jz l3
+		
+		call ScoreHealthUpdate
 		
 		push di
 		call printTrack
@@ -503,7 +532,9 @@ playerMovement:
 		add si, 4 
 		mov ax, [es:si]
 		cmp ax, [wallAttribute]
-		jz l1
+		jz l4
+		
+		call ScoreHealthUpdate
 		
 		push di
 		call printTrack
@@ -521,16 +552,110 @@ playerMovement:
 			jmp mainLoop
 
 	exitProgram:
-			mov ax, 0x20
-			xor di, di
-			mov cx, 2000
-			cld
-			rep stosw
-
+			
+			call delay
+			call delay
+			call delay
+			call delay
+			call delay
+			call delay
+			
+			call clrsrc
 			ret
+;----{Score and Health Update}----
+ScoreHealthUpdate:
+
+; es is already set to 0xB800
+; ax holds the attribute of position to move before  entering this subroutine	
+	cmp ax, [perkAttribute]
+	jnz skipScoreUpdate
+	
+	; add ten in score when perk collected
+	mov bx, [score]
+	add bx, 10
+	mov [score], bx
+		
+	call displayScore
+	
+	skipScoreUpdate:		
+		cmp ax, [enemyAttribute]
+		jnz skipHealthUpdate
+		
+		; decrement on clash with the enemy
+		dec word [cs:healthCount]
+		call displayHealth
+	
+	skipHealthUpdate:
+		
+		call displayScore
+		
+		ret
+
+displayHealth:
+    pusha                         
+    mov cx, [healthCount]         
+    mov ax, [HearthAttribute]     
+    mov di, 0					                
+    
+    mov bx, 3                    
+	
+	;clear the previous hearts
+	clear_hearts:
+		mov word [es:di], 0x20      
+		add di, 2
+		dec bx
+		jnz clear_hearts
+
+		mov di, 0x0
+		  
+		cmp cx, 0
+		jnz display_hearts                       
+		
+		; if zero hearts left no need to display heart
+		jmp _end
+		
+	display_hearts:
+		mov [es:di], ax               
+		add di, 2                     
+		loop display_hearts           
+
+	_end:
+		popa   
+		
+    ret
+
+
+displayScore:
+	pusha 
+	
+	mov ax, [score]
+	mov  bx, 10             
+    mov  cx, 0               
+	
+	;storing the digits to display
+	_nextdigit:
+			mov  dx, 0              
+            div  bx                 
+            add  dl, 0x30           
+            push dx                 
+            inc  cx                 
+            cmp  ax, 0               
+            jnz  _nextdigit          
+ 
+            mov  di, 162           
+	
+	; displaying it :)
+	_nextpos:    
+			pop  dx                
+            mov  dh, 0x07           
+            mov  [es:di], dx         
+            add  di, 2              
+            loop _nextpos            
+ 
+	popa
+	ret
 	
 start:
-
 	
 	call clrsrc
 	
@@ -570,6 +695,11 @@ LoadMaze4:
 	call LoadMaze
 		
 EndProgram:
+
+	call displayHealth
+	call displayScore
+	
 	call playerMovement
+	
     mov ax, 0x4c00       
     int 0x21
