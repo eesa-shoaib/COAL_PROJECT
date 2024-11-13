@@ -1,13 +1,16 @@
+; working score and health calculation
+; movement works
+; better load maze
 [org 0x100]
 jmp start
 
 playerAttribute: dw 0x38F0,0x38AF
 enemyAttribute: dw 0x6745, 0x674E 
-wallAttribute: dw 0x10AE
-trackAttribute: dw 0x7720
-perkAttribute: dw 0x7507
-HearthAttribute:  dw 0x0403
-finishAttribute: dw 0xFCDC
+wallAttribute: dw 0x10AE, 0x10AE
+trackAttribute: dw 0x7720, 0x7720
+perkAttribute: dw 0x7507, 0x7507
+HearthAttribute:  dw 0x0403, 0x0403
+finishAttribute: dw 0xFCDC, 0xFCDC
 
 score: dw 0
 healthCount: dw 3
@@ -89,118 +92,92 @@ randNum: dw 0
 tickcount:    dw   20                  ; start from 60 seconds
 tickticks:    dw   0                   ; counter for 18 ticks (1 second)
 
-startTimer:
-	xor  ax, ax 
-	mov  es, ax                
-	cli                         
-	mov  word [es:8*4], timer   
-	mov  [es:8*4+2], cs         
-	sti                        
-	
-	
-	
-ret
-
 ;-----{Printing Number}-----
-
-printnum:     push bp 
-              mov  bp, sp 
-              push es 
-              push ax 
-              push bx 
-              push cx 
-              push dx 
-              push di 
- 
-              mov  ax, 0xb800 
-              mov  es, ax             
-              mov  ax, [bp+4]         
-              mov  bx, 10             
-              mov  cx, 0 
+printnum:     
+	push bp 
+    mov  bp, sp 
+    pusha
+	
+    mov  ax, 0xb800 
+    mov  es, ax             
+    mov  ax, [bp+4]         
+    mov  bx, 10             
+    mov  cx, 0 
 		
  
-nextdigit:    mov  dx, 0              
-              div  bx                 
-              add  dl, 0x30           
-              push dx                 
-              inc  cx                 
-              cmp  ax, 0               
-              jnz  nextdigit          
+	nextdigit: 
+		mov  dx, 0              
+        div  bx                 
+        add  dl, 0x30           
+        push dx                 
+        inc  cx                 
+        cmp  ax, 0               
+    jnz  nextdigit          
  
-              mov  di, 140           
-				
-				cmp cx, 1
-				jz singledigit
-				
-nextpos:      pop  dx                
-              mov  dh, 0x07           
-              mov  [es:di], dx         
-              add  di, 2              
-              loop nextpos            
-				jmp term
-				
-singledigit:				
-			  pop  dx                
-              mov  dh, 0x84           
-              mov  [es:di], dx         
-              add  di, 2              
-              loop singledigit
-			  
-			  mov  word[es:di], 0x0720
-			  
-term: 
-              pop  di 
-              pop  dx 
-              pop  cx 
-              pop  bx 
-              pop  ax
-              pop  es 
-              pop  bp 
-              ret  2 
+    mov  di, 140           
+
+	cmp cx, 1
+	jz singledigit
+	
+	nextpos:      
+		pop  dx                
+		mov  dh, 0x07           
+        mov  [es:di], dx         
+        add  di, 2              
+    loop nextpos            
+	
+	jmp term
+	
+	singledigit:				
+		pop  dx                
+		mov  dh, 0x84           
+		mov  [es:di], dx         
+		add  di, 2              
+	loop singledigit
+ 
+	mov  word[es:di], 0x0720
+  
+	term: 
+		popa 
+		pop bp 
+
+	ret  2 
 
 gameOver:    
-			  call clrsrc
-			  ret
+	call clearMaze
+	ret
 
-timer:      push ax 
-            push bx
+timer:      
+	push ax 
+    push bx
  
-            inc  word [cs:tickticks]    
- 
+    inc  word [cs:tickticks]    
+	
+    mov  ax, [cs:tickticks]
+    cmp  ax, 0x3A               ; Check if tick counter reached 18 (approximately 1 second)
+    jb   skip_display_update    
 
-            mov  ax, [cs:tickticks]
-            cmp  ax, 18               ; Check if tick counter reached 18 (approximately 1 second)
-            jb   skip_display_update    
+    mov  word [cs:tickticks], 0 
+    dec  word [cs:tickcount]    
 
-            mov  word [cs:tickticks], 0 
-		
-            dec  word [cs:tickcount]    
-
-            mov  ax, [cs:tickcount]
-            cmp  ax, 0
-            jg   display_update         
-              
-            call gameOver                  
-
+    mov  ax, [cs:tickcount]
+    cmp  ax, 0
+    jg   display_update         
+	
 	skip_display_update:
-              
-            jmp end_interrupt
+        jmp end_
 
 	display_update:
-              
-            push word [cs:tickcount]
-            call printnum
+        push word [cs:tickcount]
+        call printnum
 
-	end_interrupt:
-            mov  al, 0x20 
-            out  0x20, al              
- 
-            pop  bx 
-            pop  ax 
-            iret 
-			  
+	end_:
+        pop bx 
+        pop ax 
+    ret
+  
 clrsrc:
-		
+
 	mov ax, 0xb800
 	mov es, ax
 	mov ax, 0x20
@@ -216,9 +193,7 @@ clrsrc:
 GenRandNum:
     push bp
     mov bp, sp
-    push cx
-    push ax
-    push dx
+    pusha
 
     mov ah, 00h         ; Interrupt to get system time
     int 1Ah             ; CX:DX now hold number of clock ticks since midnight
@@ -229,9 +204,7 @@ GenRandNum:
 
     mov [randNum], dx   
 
-    pop dx
-    pop ax
-    pop cx
+    popa
 	pop bp
 	ret
 	
@@ -243,15 +216,15 @@ delay:
 		push cx
 		mov cx, 0xFFFF
 
-	delay_loop2:
-
+		delay_loop2:
 		loop delay_loop2
+		
 		pop cx
-		loop delay_loop1
+		
+	loop delay_loop1
 
-		pop cx
-		ret	
-
+	pop cx
+	ret	
 
 ;-----{Maze Generation}-----
 
@@ -267,83 +240,71 @@ LoadMaze:
 		mov si, [bp + 4]
 		mov di, 1328		; row = 8, col = 24
 		xor dx, dx
-		
+	
 	MazeGenerationLoop:
+		; Check if we've reached the end of the row
+			cmp dx, 16
+			jne drawing
+	
+			; Move to the next row
+			sub di, 64         ; Adjust for new row
+			add di, 160        ; Move down one row in video memory
+			xor dx, dx         ; Reset column counter
+			
+		drawing:
+			; Load the current maze element
+			mov al, [si]
+			inc si             ; Move to the next maze cell for the next iteration
 		
-		cmp dx, 64 
-		jnz drawing
+			; Determine the drawing attribute
+			cmp al, 1          ; Wall
+			je draw_wall
+			cmp al, 2          ; Player
+			je draw_player
+			cmp al, 3          ; Enemy
+			je draw_enemy
+			cmp al, 4          ; Perk
+			je draw_perk
+			
+			jmp empty_space    ; Track
 		
-		sub di, 64
-		add di, 160
-		mov dx, 0
+		draw_wall:
+			mov bx, wallAttribute
+			jmp draw_cell
 		
-	drawing:	
-
-		cmp byte[si], 4
-		jz perk
+		draw_player:
+			mov [playerIndexDisplay], di
+			mov bx, playerAttribute
+			jmp draw_cell
 		
-		cmp byte[si], 3
-		jz enemy
+		draw_enemy:
+			mov bx, enemyAttribute
+			jmp draw_cell
 		
-		cmp byte[si], 2
-		jz player
+		draw_perk:
+			mov bx, perkAttribute
+			jmp draw_cell
 		
-		cmp byte[si], 0
-		jz Track
+		empty_space:
+			mov bx, trackAttribute
 		
-		
-		; wall printing
-		call printWall
-		add dx, 4
-		xor ax, ax				; setting bx back to 0
-
-		inc si
-		call delay
-		
-		loop MazeGenerationLoop
-		jmp terminate
-
-	perk:
-		call printPerk
-		add dx, 4
-		inc si
-		call delay
-		
-		loop MazeGenerationLoop
-		jmp terminate
-		
-
-	player:
-		call printPlayer
-		add dx, 4
-		inc si
-		call delay
-		
-		loop MazeGenerationLoop
-		jmp terminate
-		
-
-	enemy:
-		call printEnemy
-		add dx, 4
-		inc si
-		call delay
-		
-		loop MazeGenerationLoop
-		jmp terminate
-		
-	Track:
-		call printTrack
-		add dx, 4
-		inc si
-		call delay
-		
-		loop MazeGenerationLoop
+		draw_cell:
+			; Draw the current cell to video memory
+			mov ax, [bx]
+			mov [es:di], ax
+			add di, 2         ; Move to the next screen position
+			mov ax, [bx + 2]
+			mov [es:di], ax
+			add di, 2         ; Move to the next screen position
+			inc dx            ; Increment column counter
+			
+			call delay
+			
+	loop MazeGenerationLoop
 
 	terminate:	
 		
 		sub di, 8
-		sub di, 160
 		mov [finishIndex], di
 		mov ax, [finishAttribute]
 		mov word[es:di], ax
@@ -352,219 +313,161 @@ LoadMaze:
 		
 		popa	
 		pop bp
-		ret 2
+	ret 2
 
 
 ;-----{Loading Textures on Display Memory}-----
-
-printWall: 
-	mov ax, [wallAttribute]
-	mov word [es:di],ax
-	add di, 2
-	mov word [es:di],ax
-	add di, 2
-	xor ax, ax
-	
-	ret
-	
-printPerk:
-	mov ax, [perkAttribute]
-	mov word [es:di],ax
-	add di, 2
-	mov word [es:di],ax
-	add di, 2
-	xor ax, ax				; setting ax back to 0
-
-	ret
-
-printPlayer:
-	
-	mov ax, [playerAttribute]
-	mov [playerIndexDisplay], di
-	mov word [es:di],ax
-	add di, 2
-	mov ax, [playerAttribute + 2]
-	mov word [es:di],ax
-	add di, 2
-	xor ax, ax				; setting ax back to 0
-
-	ret
-
-printEnemy:
-	mov ax, [enemyAttribute]
-	mov word [es:di],ax
-	add di, 2
-	mov ax, [enemyAttribute + 2]
-	mov word [es:di], ax
-	add di, 2
-	xor ax, ax				; setting ax back to 0
-
-	ret
 
 printTrack:
 
 	mov ax, [trackAttribute]
 	mov word [es:di],ax
-	add di, 2
-	mov word [es:di],ax
-	add di, 2
+	mov word [es:di + 2],ax
 	xor ax, ax				; setting ax back to 0
 
-	ret
+ret
+
+printPlayer:
+	mov dx, [playerAttribute]
+	mov word[es: di], dx
+	mov dx, [playerAttribute + 2]
+	mov word[es: di + 2], dx
 	
+ret
 	
 ;-----{Movement for Player}-----
 
 playerMovement:
 	
 	mov di, [playerIndexDisplay]
+	
 	mainLoop:
 		
-		; if health is zero end the game
-		xor bx, bx
-		cmp word[cs:healthCount], bx
+		mov ah, 01
+		int 0x16
+		jnz movementloop
+		
+		call delay
+		call timer
+		
+		mov ax, [tickcount]
+		cmp ax, 1
 		jz exitProgram
 		
-		; if player has moved to finish end the game
-		cmp di, [finishIndex]
-		jz exitProgram
-		
-    ; Check if a key is pressed
-		mov ah, 00h            
-		int 16h  
-		
-		cmp al, 27				; escape
-		jz exitProgram
-	
-		cmp al, 'w'            
-		jz moveUp        
-    
-		cmp al, 'a'            
-		jz moveLeft 
-	
-		cmp al, 's'            
-		jz moveDown 
-	
-		cmp al, 'd'            
-		jz moveRight 
-	
 		jmp mainLoop
-
-	moveUp: 
-	
-		mov si, di
-		sub si, 160 
-		mov ax, [es:si]
-		cmp ax, [wallAttribute]
-		jz l1
-		
-		call ScoreHealthUpdate
-		
-		push di
-		call printTrack
-		pop di
-		
-		sub di, 160
+		movementloop:
+			; if health is zero end the game
+			xor bx, bx
+			cmp word[cs:healthCount], bx
+			jz exitProgram
 			
-		; character printing
-		mov dx, [playerAttribute]
-		mov word[es: di], dx
-		mov dx, [playerAttribute + 2]
-		mov word[es: di + 2], dx
+			; if player has moved to finish end the game
+			cmp di, [finishIndex]
+			jz exitProgram
+				
+			mov ax, [tickcount]
+			cmp ax, 0
+			jz exitProgram
+
+			; Check if a key is pressed
+			mov ah, 00h            
+			int 16h  
+			
+			cmp al, 27				; escape
+			jz exitProgram
 		
-		l1:
+			cmp al, 'w'            
+			jz moveUp        
+		
+			cmp al, 'a'            
+			jz moveLeft 
+		
+			cmp al, 's'            
+			jz moveDown 
+		
+			cmp al, 'd'            
+			jz moveRight 
+		
 			jmp mainLoop
 
-	moveDown: 
-
-		mov si, di
-		add si, 160 
-		mov ax, [es:si]
-		cmp ax, [wallAttribute]
-		jz l2
-		
-		call ScoreHealthUpdate
-		
-		push di
-		call printTrack
-		pop di
-		
-		add di, 160
+			moveUp: 
 			
-		; character printing
-		mov dx, [playerAttribute]
-		mov word[es: di], dx
-		mov dx, [playerAttribute + 2]
-		mov word[es: di + 2], dx
-		
-		l2:
+				mov si, di
+				sub si, 160 
+				mov ax, [es:si]
+				cmp ax, [wallAttribute]
+				jz mainLoop
+				
+				call ScoreHealthUpdate
+				call printTrack
+				
+				; drawing player moving
+				sub di, 160
+				call printPlayer
+				
 			jmp mainLoop
 
-	moveLeft:
-	
-		mov si, di
-		sub si, 4 
-		
-		mov ax, [es:si]
-		cmp ax, [wallAttribute]
-		jz l3
-		
-		call ScoreHealthUpdate
-		
-		push di
-		call printTrack
-		pop di
-		
-		sub di, 4
-			
-		; character printing
-		mov dx, [playerAttribute]
-		mov word[es: di], dx
-		mov dx, [playerAttribute + 2]
-		mov word[es: di + 2], dx
+			moveDown: 
 
-		l3:	
+				mov si, di
+				add si, 160 
+				mov ax, [es:si]
+				cmp ax, [wallAttribute]
+				jz mainLoop
+				
+				call ScoreHealthUpdate
+				call printTrack
+				
+				; draw player moving
+				add di, 160
+				call printPlayer
+				
 			jmp mainLoop
 
-	moveRight:
-	
-		mov si, di
-		add si, 4 
-		mov ax, [es:si]
-		cmp ax, [wallAttribute]
-		jz l4
-		
-		call ScoreHealthUpdate
-		
-		push di
-		call printTrack
-		pop di
-		
-		add di, 4
+			moveLeft:
 			
-		; character printing
-		mov dx, [playerAttribute]
-		mov word[es: di], dx
-		mov dx, [playerAttribute + 2]
-		mov word[es: di + 2], dx
+				mov si, di
+				sub si, 4 
+				
+				mov ax, [es:si]
+				cmp ax, [wallAttribute]
+				jz mainLoop
+				
+				call ScoreHealthUpdate
+				call printTrack
+				
+				; draw player moving
+				sub di, 4
+				call printPlayer
 
-		l4:
+				
+			jmp mainLoop
+
+			moveRight:
+			
+				mov si, di
+				add si, 4 
+				mov ax, [es:si]
+				cmp ax, [wallAttribute]
+				jz mainLoop
+				
+				call ScoreHealthUpdate
+				call printTrack
+				
+				; draw player moving
+				add di, 4
+				call printPlayer
+
 			jmp mainLoop
 
 	exitProgram:
 			
-			call delay
-			call delay
-			call delay
-			call delay
-			call delay
-			call delay
-			
-			call clrsrc
-			ret
+		call clearMaze
+	ret
+	
 ;----{Score and Health Update}----
-ScoreHealthUpdate:
 
+ScoreHealthUpdate:
 ; es is already set to 0xB800
 ; ax holds the attribute of position to move before  entering this subroutine	
 	cmp ax, [perkAttribute]
@@ -574,7 +477,7 @@ ScoreHealthUpdate:
 	mov bx, [score]
 	add bx, 10
 	mov [score], bx
-		
+
 	call displayScore
 	
 	skipScoreUpdate:		
@@ -583,19 +486,18 @@ ScoreHealthUpdate:
 		
 		; decrement on clash with the enemy
 		dec word [cs:healthCount]
-		call displayHealth
+	call displayHealth
 	
 	skipHealthUpdate:
 		
-		call displayScore
-		
-		ret
+		call displayScore	
+	ret
 
 displayHealth:
     pusha                         
     mov cx, [healthCount]         
     mov ax, [HearthAttribute]     
-    mov di, 0					                
+    mov di, 2					                
     
     mov bx, 3                    
 	
@@ -604,27 +506,26 @@ displayHealth:
 		mov word [es:di], 0x20      
 		add di, 2
 		dec bx
-		jnz clear_hearts
+	jnz clear_hearts
 
-		mov di, 0x0
-		  
-		cmp cx, 0
-		jnz display_hearts                       
-		
-		; if zero hearts left no need to display heart
-		jmp _end
-		
+
+	mov di, 2	
+	cmp cx, 0
+	jnz display_hearts                       
+	
+	; if zero hearts left no need to display heart
+	jmp _end
+
 	display_hearts:
 		mov [es:di], ax               
 		add di, 2                     
-		loop display_hearts           
+	loop display_hearts           
 
 	_end:
 		popa   
-		
-    ret
 
-
+	ret
+	
 displayScore:
 	pusha 
 	
@@ -639,10 +540,10 @@ displayScore:
             add  dl, 0x30           
             push dx                 
             inc  cx                 
-            cmp  ax, 0               
-            jnz  _nextdigit          
+            cmp  ax, 0  			
+    jnz _nextdigit          
  
-            mov  di, 162           
+    mov  di, 162           
 	
 	; displaying it :)
 	_nextpos:    
@@ -650,7 +551,8 @@ displayScore:
             mov  dh, 0x07           
             mov  [es:di], dx         
             add  di, 2              
-            loop _nextpos            
+    
+	loop _nextpos            
  
 	popa
 	ret
@@ -675,31 +577,63 @@ start:
 	cmp al, 3            ; If randNum == 2, load maze3
     je LoadMaze4  
 	
-LoadMaze1:
-    push maze1          
-    call LoadMaze  
-    jmp EndProgram      
+	LoadMaze1:
+		push maze1          
+		call LoadMaze  
+		jmp EndProgram      
 
-LoadMaze2:
-    push maze2          
-    call LoadMaze       
-	jmp EndProgram       
-	
-LoadMaze3:
-    push maze3           
-    call LoadMaze 
-    jmp EndProgram
-
-LoadMaze4:
-	push maze4
-	call LoadMaze
+	LoadMaze2:
+		push maze2          
+		call LoadMaze       
+		jmp EndProgram       
 		
-EndProgram:
+	LoadMaze3:
+		push maze3           
+		call LoadMaze 
+		jmp EndProgram
 
-	call displayHealth
-	call displayScore
-	
-	call playerMovement
-	
+	LoadMaze4:
+		push maze4
+		call LoadMaze
+		
+		
+	EndProgram:
+
+		call displayHealth
+		call displayScore
+		call playerMovement
+		
     mov ax, 0x4c00       
     int 0x21
+	
+clearMaze:
+		mov ax, 0xb800
+		mov es, ax
+		
+		mov cx, 256			; as the dimension of maze is 16*16
+		mov di, 1328		; row = 8, col = 24
+		mov ax, 0x20
+		xor dx, dx
+		
+		MazeClearingLoop:
+		
+			cmp dx, 64 
+			jnz pixelClear
+			
+			sub di, 64
+			add di, 160
+			mov dx, 0
+			
+			pixelClear:	
+
+				mov word [es:di], 0x20
+				add di, 2
+				mov word [es:di], 0x20
+				add di, 2
+				add dx, 4			; setting bx back to 0
+
+				call delay	
+		loop MazeClearingLoop
+	call clrsrc	
+	
+	ret 
