@@ -648,9 +648,8 @@ gameOverScreen:
 			call delay
 			call timer
 			
-			mov ax, [tickcount]
-			cmp ax, 1
-			jz exitProgram
+			cmp word[tickcount], 1
+			jz timefinished
 			
 			; if health is zero end the game
 			xor bx, bx
@@ -669,7 +668,7 @@ gameOverScreen:
 				int 16h  
 				
 				cmp al, 27				; escape
-				jz exitProgram
+				jz quitGame
 			
 				cmp al, 'w'            
 				jz moveUp        
@@ -772,7 +771,13 @@ gameOverScreen:
 					call printPlayer
 
 				jmp mainLoop
-
+		
+		timefinished:
+			dec word [tickcount]
+			push word[tickcount]
+			call printnum			
+			
+			jmp exitProgram
 		quitGame:
 		mov word [isESCpressed], 1
 		exitProgram:
