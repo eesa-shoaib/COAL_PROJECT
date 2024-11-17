@@ -1,6 +1,3 @@
-	; working score and health calculation
-	; movement works
-	; better load maze
 	[org 0x100]
 	jmp start
 
@@ -16,7 +13,9 @@
 
 	HearthAttribute:  dw 0x0403, 0x0403
 	finishAttribute: dw 0xFCDC, 0xFCDC
-
+	
+	supermanAttribute: dw 0x753
+	
 	outerBorderAttribute: dw  0x10AE
 	innerBorderAttribute: dw 0x7720 
 	stringAttribute: dw 0x09
@@ -24,83 +23,79 @@
 	score: dw 0
 	healthCount: dw 3
 	supermanCount: dw 2
+	
 
 	finishIndex: dw 0
 	playerIndexDisplay: dw 0
 
-	maze1: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-		  db 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-		  db 1, 0, 0, 4, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1
-		  db 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 4, 0, 1
-		  db 1, 0, 1, 4, 1, 0, 0, 0, 3, 0, 0, 0, 1, 1, 1, 1
-		  db 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1
-		  db 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1
-		  db 1, 0, 0, 0, 5, 0, 1, 0, 3, 0, 1, 0, 1, 4, 0, 1
-		  db 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 5, 0, 0, 0, 1
-		  db 1, 5, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1
-		  db 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 4, 0, 1
-		  db 1, 0, 1, 4, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1
-		  db 1, 0, 1, 1, 1, 0, 5, 0, 4, 0, 0, 0, 0, 0, 3, 1
-		  db 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1
-		  db 1, 6, 1, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
-		  db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-
-	maze2: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-		  db 1, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
-		  db 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
-		  db 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 5, 1
-		  db 1, 0, 1, 1, 1, 1, 3, 1, 0, 1, 1, 1, 0, 1, 1, 1
-		  db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
-		  db 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
-		  db 1, 0, 0, 1, 0, 1, 0, 0, 5, 1, 0, 0, 0, 1, 0, 1
-		  db 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1
-		  db 1, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0, 1
-		  db 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1
-		  db 1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1
-		  db 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
-		  db 1, 0, 1, 5, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1
-		  db 1, 6, 0, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 1
-		  db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-
+	maze1:db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+		db 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+		db 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1
+		db 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 4, 0, 1
+		db 1, 0, 1, 4, 1, 0, 0, 0, 3, 0, 0, 0, 1, 1, 1, 1
+		db 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1
+		db 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1
+		db 1, 0, 0, 0, 0, 0, 1, 6, 3, 0, 1, 0, 1, 5, 0, 1
+		db 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1
+		db 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 1
+		db 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 4, 0, 1
+		db 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1
+		db 1, 0, 1, 1, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1
+		db 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1
+		db 1, 0, 1, 5, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
+		db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+	 
+	maze2:db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+		db 1, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+		db 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1
+		db 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1
+		db 1, 0, 1, 1, 1, 1, 3, 1, 0, 1, 1, 1, 0, 1, 1, 1
+		db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+		db 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
+		db 1, 5, 0, 1, 0, 1, 4, 0, 0, 1, 0, 0, 0, 1, 5, 1
+		db 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1
+		db 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0, 1
+		db 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1
+		db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1
+		db 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
+		db 1, 0, 1, 6, 1, 0, 1, 4, 1, 1, 1, 1, 1, 1, 0, 1
+		db 1, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 1
+		db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+	 
 	maze3: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-		   db 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 0, 0, 0, 1
-		   db 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1
-		   db 1, 0, 1, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
-		   db 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1
-		   db 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 4, 0, 1, 0, 0, 1
-		   db 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
-		   db 1, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 1, 0, 1, 0, 1
-		   db 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
-		   db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
-		   db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
-		   db 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 1, 0, 0, 0, 1
-		   db 1, 0, 1, 5, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1
-		   db 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1
-		   db 1, 6, 0, 0, 3, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 1
-		   db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-
-	maze4:  db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-			db 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 0, 0, 5, 1
-			db 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 5, 1, 0, 1, 1
-			db 1, 0, 0, 0, 1, 0, 1, 4, 1, 0, 1, 1, 1, 0, 0, 1	   
-			db 1, 0, 1, 4, 1, 0, 1, 0, 0, 0, 0, 3, 0, 0, 0, 1	   
-			db 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1	   
-			db 1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1	   
-			db 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1	   
-			db 1, 0, 0, 0, 0, 0, 4, 1, 0, 1, 4, 0, 0, 0, 0, 1	   
-			db 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1
-			db 1, 0, 1, 0, 5, 0, 0, 0, 0, 0, 4, 1, 0, 1, 4, 1	   
-			db 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1
-			db 1, 0, 1, 1, 1, 4, 0, 0, 1, 4, 1, 0, 0, 0, 0, 1		   
-			db 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1
-			db 1, 6, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
-			db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
-
-	TimeEndStr: db 'Timer Ran Out', 0
-	healthFinishedStr: db 'Player Died', 0
-	DestinationReachedStr: db 'Player Completes the Maze', 0
-	gameTitle: db 'Maze Runner', 0
+		db 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 0, 0, 0, 1
+		db 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1
+		db 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1
+		db 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1
+		db 1, 0, 0, 0, 0, 1, 5, 1, 4, 0, 0, 0, 1, 0, 0, 1
+		db 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
+		db 1, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 1, 0, 0, 0, 1
+		db 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1
+		db 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+		db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
+		db 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+		db 1, 0, 1, 6, 1, 0, 1, 1, 0, 1, 4, 1, 0, 1, 0, 1
+		db 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1
+		db 1, 0, 0, 0, 3, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 1
+		db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 	
+	maze4: db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+		db 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1
+		db 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 5, 1, 0, 1, 1
+		db 1, 0, 0, 0, 1, 0, 1, 4, 1, 0, 1, 1, 1, 0, 0, 1	   
+		db 1, 0, 1, 4, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1	   
+		db 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1	   
+		db 1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1	   
+		db 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1	   
+		db 1, 0, 0, 0, 0, 0, 6, 1, 0, 1, 0, 0, 0, 0, 0, 1	   
+		db 1, 0, 1, 1, 3, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1
+		db 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 4, 1	   
+		db 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1
+		db 1, 0, 1, 1, 1, 0, 0, 0, 1, 5, 1, 0, 0, 3, 0, 1		   
+		db 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1
+		db 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1
+		db 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1
+
 	randNum: dw 0
 	tickcount:    dw   20                  ; start from 60 seconds
 	tickticks:    dw   0                   ; counter for 18 ticks (1 second)
@@ -194,7 +189,7 @@
 
 		mov  ax, [cs:tickcount]
 		cmp  ax, 0
-		jg   display_update         
+		jge display_update         
 		
 		skip_display_update:
 			jmp end_
@@ -380,7 +375,7 @@ gameOverScreen:
 	cmp word [isESCpressed],1
 	je endGame
 	
-	cmp word [tickcount], 1
+	cmp word [tickcount], 0
 	je timeisUP
 	
 	cmp word [healthCount], 0
@@ -477,7 +472,7 @@ gameOverScreen:
 		pusha
 		
 		mov ax, 0x07CD
-		mov si, 320
+		mov si, 480
 		mov cx, 5
 		
 		; lower boundary
@@ -489,7 +484,7 @@ gameOverScreen:
 		; corner
 		mov word[es: si], 0x07BC	
 		
-		mov cx, 2
+		mov cx, 3
 		sub si, 160
 		
 		;upper boundary
@@ -648,8 +643,8 @@ gameOverScreen:
 			call delay
 			call timer
 			
-			cmp word[tickcount], 1
-			jz timefinished
+			cmp word[tickcount], 0
+			jz exitProgram
 			
 			; if health is zero end the game
 			xor bx, bx
@@ -689,16 +684,17 @@ gameOverScreen:
 				
 				superman:
 			
-				cmp word [supermanCount], 0
-				jz mainLoop
-				
-				dec word[supermanCount]
-				mov ax, 3
-				mov word [healthCount], 3
-				call displayHealth
-				
-				shl word[score], 1			
-				call displayScore
+					cmp word [supermanCount], 0
+					jz mainLoop
+					
+					dec word[supermanCount]
+					mov ax, 3
+					mov word [healthCount], 3
+					call displayHealth
+					
+					shl word[score], 1			
+					call displayScore
+					call displaySupes
 				
 				jmp mainLoop
 
@@ -771,15 +767,9 @@ gameOverScreen:
 					call printPlayer
 
 				jmp mainLoop
-		
-		timefinished:
-			dec word [tickcount]
-			push word[tickcount]
-			call printnum			
-			
-			jmp exitProgram
 		quitGame:
 		mov word [isESCpressed], 1
+		
 		exitProgram:
 			call clearMaze
 			call gameOverScreen
@@ -861,7 +851,40 @@ gameOverScreen:
 			popa   
 
 		ret
+	
+	displaySupes:
+		pusha                         
+		mov cx, [supermanCount]         
+		mov ax, [supermanAttribute]     
+		mov di, 322					                
 		
+		mov bx, 2                    
+		
+		;clear the previous hearts
+		clear_supes:
+			mov word [es:di], 0x20      
+			add di, 2
+			dec bx
+		jnz clear_supes
+
+
+		mov di, 322	
+		cmp cx, 0
+		jnz display_S                       
+		
+		; if zero hearts left no need to display heart
+		jmp ending
+
+		display_S:
+			mov [es:di], ax               
+			add di, 2                     
+		loop display_S           
+
+		ending:
+			popa   
+
+		ret
+	
 	displayScore:
 		pusha 
 		
@@ -898,19 +921,17 @@ gameOverScreen:
 		call clrsrc
 		
 		call GenRandNum
-		mov ax, [randNum]
 		
-		mov al, [randNum]
-		cmp al, 0            ; If randNum == 0, load maze1
+		cmp byte[randNum], 0            ; If randNum == 0, load maze1
 		je LoadMaze1         
 
-		cmp al, 1            ; If randNum == 1, load maze2
+		cmp byte[randNum], 1            ; If randNum == 1, load maze2
 		je LoadMaze2         
 
-		cmp al, 2            ; If randNum == 2, load maze3
+		cmp byte[randNum], 2            ; If randNum == 2, load maze3
 		je LoadMaze3         
 		
-		cmp al, 3            ; If randNum == 2, load maze3
+		cmp byte[randNum], 3            ; If randNum == 2, load maze3
 		je LoadMaze4  
 		
 		LoadMaze1:
@@ -937,6 +958,7 @@ gameOverScreen:
 			call scoreBox	
 			call displayHealth
 			call displayScore
+			call displaySupes
 			call playerMovement
 			
 		mov ax, 0x4c00       
